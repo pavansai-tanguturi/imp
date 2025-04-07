@@ -1,47 +1,49 @@
-N = 5
-I = 99999
+import sys
 
-# Function to find the vertex with the minimum distance that hasn't been visited
-def m(d, v):
-    x = I
-    p = -1
-    for i in range(N):
-        if not v[i] and d[i] < x:
-            x = d[i]
-            p = i
-    return p
+NODES = 5
+INF = sys.maxsize
 
-# Function to compute the routing table for a given source node
-def o(g, s):
-    d = [I] * N
-    v = [0] * N
-    d[s] = 0
-    
-    for i in range(N - 1):
-        u = m(d, v)  # Find the node with the minimum distance
-        v[u] = 1  # Mark the node as visited
-        
-        for j in range(N):
-            if not v[j] and g[u][j] and d[u] + g[u][j] < d[j]:
-                d[j] = d[u] + g[u][j]  # Update the distance to node j
-    
-    print(f"Routing Table for Node {s}:")
-    for i in range(N):
-        print(f"To {i}: Cost = {d[i]}")
+def min_distance(dist, visited):
+    min_val = INF
+    min_index = -1
+    for v in range(NODES):
+        if not visited[v] and dist[v] < min_val:
+            min_val = dist[v]
+            min_index = v
+    return min_index
 
-# Main function to run the Dijkstra's algorithm for each node
+def print_routing_table(dist, src):
+    print(f"Routing table for node {src}:")
+    for i in range(NODES):
+        print(f"Node {i}: Distance {dist[i]}")
+    print()
+
+def ospf_routing(graph, src):
+    dist = [INF] * NODES
+    visited = [False] * NODES
+    dist[src] = 0
+
+    for _ in range(NODES - 1):
+        u = min_distance(dist, visited)
+        visited[u] = True
+
+        for v in range(NODES):
+            if not visited[v] and graph[u][v] and dist[u] != INF and dist[u] + graph[u][v] < dist[v]:
+                dist[v] = dist[u] + graph[u][v]
+
+    print_routing_table(dist, src)
+
 def main():
-    g = [
-        [0, 10, I, 30, 100],
-        [10, 0, 50, I, I],
-        [I, 50, 0, 20, 10],
-        [30, I, 20, 0, 60],
-        [100, I, 10, 60, 0]
+    graph = [
+        [0, 10, INF, 30, 100],
+        [10, 0, 50, INF, INF],
+        [INF, 50, 0, 20, 10],
+        [30, INF, 20, 0, 60],
+        [100, INF, 10, 60, 0]
     ]
-    
-    for i in range(N):
-        o(g, i)
 
-# Run the main function
+    for i in range(NODES):
+        ospf_routing(graph, i)
+
 if __name__ == "__main__":
     main()
